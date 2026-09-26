@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Twinvale Daily Challenge</title>
+<meta name="description" content="A friend cleared today's Twinvale memory board. Same cards, same order. Can you beat their score?">
+<meta property="og:title" content="Can you beat my Twinvale Daily?">
+<meta property="og:description" content="Same cards, same order. Flip, remember, and beat my score in Twinvale, the memory card adventure.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://apps-bay.github.io/Apps-Bay-Website/twinvale/challenge/icon.png">
+<meta name="twitter:card" content="summary">
+<meta name="apple-itunes-app" content="app-id=1617593078">
+<meta name="theme-color" content="#11162F">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --night: #11162F;
+    --indigo: #20224F;
+    --violet: #56366F;
+    --gold: #D99D38;
+    --gold-bright: #FFE39A;
+    --muted: #D3D3E5;
+    --ember: #FF8A3D;
+    --play: #3FB950;
+    --play-lip: #23813A;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    background: radial-gradient(120% 80% at 50% 0%, var(--violet) 0%, var(--indigo) 45%, var(--night) 100%) fixed;
+    color: #fff;
+    font: 600 16px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: max(24px, env(safe-area-inset-top)) 16px 32px;
+  }
+  main { width: 100%; max-width: 420px; text-align: center; }
+  .icon { width: 88px; height: 88px; border-radius: 22px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .brand { margin: 12px 0 20px; color: var(--gold-bright); letter-spacing: .12em; font-size: 13px; font-weight: 900; text-transform: uppercase; }
+  .card {
+    background: linear-gradient(135deg, var(--violet), var(--indigo));
+    border: 3px solid var(--gold);
+    border-radius: 24px;
+    padding: 24px 20px;
+    box-shadow: 0 10px 30px rgba(217,157,56,.22);
+  }
+  h1 { margin: 0 0 6px; font-size: 24px; line-height: 1.2; font-weight: 900; }
+  .date { color: var(--muted); font-size: 14px; }
+  .stars { font-size: 30px; letter-spacing: 4px; margin: 14px 0 6px; }
+  .score { display: flex; justify-content: center; gap: 12px; margin: 10px 0 16px; }
+  .stat { background: rgba(0,0,0,.22); border-radius: 14px; padding: 10px 16px; min-width: 110px; }
+  .stat b { display: block; font-size: 28px; font-weight: 900; }
+  .stat span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+  .pitch { color: var(--muted); font-size: 15px; margin: 0; }
+  .buttons { display: grid; gap: 12px; margin-top: 22px; }
+  .btn {
+    display: block; text-decoration: none; color: #fff; font-weight: 900; font-size: 18px;
+    min-height: 54px; padding: 14px 18px; border-radius: 16px;
+    background: var(--play); box-shadow: 0 5px 0 var(--play-lip);
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--play-lip); }
+  .btn.gold { background: var(--gold); box-shadow: 0 5px 0 #A06E1F; color: #3A2840; }
+  .btn.ghost { background: rgba(255,255,255,.08); box-shadow: none; border: 2px solid rgba(255,255,255,.25); font-size: 16px; }
+  .hint { color: var(--muted); font-size: 13px; margin-top: 18px; }
+  .hidden { display: none !important; }
+  footer { margin-top: 28px; color: rgba(211,211,229,.6); font-size: 12px; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <img class="icon" src="icon.png" alt="" width="88" height="88">
+  <div class="brand" id="brand">Twinvale Daily</div>
+
+  <section class="card" id="challenge">
+    <h1 id="title">A friend challenges you!</h1>
+    <div class="date" id="date"></div>
+    <div class="stars" id="stars" aria-hidden="true"></div>
+    <div class="score">
+      <div class="stat"><b id="turns">–</b><span id="turnsLabel">turns</span></div>
+      <div class="stat"><b id="seconds">–</b><span id="secondsLabel">seconds</span></div>
+    </div>
+    <p class="pitch" id="pitch">Same cards, same order. Can you beat it?</p>
+  </section>
+
+  <section class="card hidden" id="invalid">
+    <h1 id="invalidTitle">Twinvale</h1>
+    <p class="pitch" id="invalidBody">Flip two cards. Remember what you saw. A new Daily board every day.</p>
+  </section>
+
+  <div class="buttons">
+    <a class="btn" id="open" href="#">Open in Twinvale</a>
+    <a class="btn gold" id="store" href="https://apps.apple.com/app/id1617593078">Get Twinvale free</a>
+    <a class="btn ghost hidden" id="storeOther" href="https://play.google.com/store/apps/details?id=com.appsbay.classic_memory_game">Get it on Google Play</a>
+  </div>
+  <p class="hint" id="hint">Already installed? Tap “Open in Twinvale” to play the same board.</p>
+
+  <footer>
+    <a href="https://apps-bay.github.io/Apps-Bay-Website/privacy/">Privacy</a> · No tracking on this page
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var APP_STORE = "https://apps.apple.com/app/id1617593078";
+  var PLAY_STORE = "https://play.google.com/store/apps/details?id=com.appsbay.classic_memory_game";
+  var PACKAGE = "com.appsbay.classic_memory_game";
+
+  // Keep in step with DailyStreakCopy in the app.
+  var STRINGS = {
+    en: { brand: "Twinvale Daily", title: "A friend challenges you!", turns: "turns", seconds: "seconds",
+          pitch: "Same cards, same order. Can you beat it?", open: "Open in Twinvale", get: "Get Twinvale free",
+          play: "Get it on Google Play", appStore: "Download on the App Store",
+          hint: "Already installed? Tap “Open in Twinvale” to play the same board.",
+          invalidBody: "Flip two cards. Remember what you saw. A new Daily board every day." },
+    zh: { brand: "双谷每日", title: "好友向你发起挑战！", turns: "步", seconds: "秒",
+          pitch: "同样的牌，同样的顺序。你能超越吗？", open: "在双谷中打开", get: "免费获取双谷",
+          play: "在 Google Play 获取", appStore: "在 App Store 下载",
+          hint: "已经安装？点击「在双谷中打开」玩同一局。",
+          invalidBody: "翻开两张牌，记住你看到的。每天都有新的每日牌面。" },
+    zhHant: { brand: "雙谷每日", title: "好友向你發起挑戰！", turns: "步", seconds: "秒",
+          pitch: "同樣的牌，同樣的順序。你能超越嗎？", open: "在雙谷中開啟", get: "免費取得雙谷",
+          play: "在 Google Play 取得", appStore: "在 App Store 下載",
+          hint: "已經安裝？點擊「在雙谷中開啟」玩同一局。",
+          invalidBody: "翻開兩張牌，記住你看到的。每天都有新的每日牌面。" },
+    ja: { brand: "双の谷デイリー", title: "友だちからの挑戦状！", turns: "手", seconds: "秒",
+          pitch: "同じカード、同じ並び。超えられる？", open: "双の谷で開く", get: "双の谷を無料で入手",
+          play: "Google Play で入手", appStore: "App Store からダウンロード",
+          hint: "インストール済みなら「双の谷で開く」で同じ盤面をプレイ。",
+          invalidBody: "2枚めくって、見たものを覚えよう。毎日新しいデイリー盤面。" },
+    ko: { brand: "쌍골 데일리", title: "친구가 도전장을 보냈어요!", turns: "턴", seconds: "초",
+          pitch: "같은 카드, 같은 순서. 이길 수 있을까요?", open: "쌍골에서 열기", get: "쌍골 무료로 받기",
+          play: "Google Play에서 받기", appStore: "App Store에서 다운로드",
+          hint: "이미 설치했다면 ‘쌍골에서 열기’로 같은 보드를 플레이하세요.",
+          invalidBody: "카드 두 장을 뒤집고 본 것을 기억하세요. 매일 새 데일리 보드." },
+    es: { brand: "Twinvale diario", title: "¡Un amigo te reta!", turns: "turnos", seconds: "segundos",
+          pitch: "Mismas cartas, mismo orden. ¿Lo superas?", open: "Abrir en Twinvale", get: "Consigue Twinvale gratis",
+          play: "Disponible en Google Play", appStore: "Descargar en el App Store",
+          hint: "¿Ya lo tienes? Toca “Abrir en Twinvale” para jugar el mismo tablero.",
+          invalidBody: "Voltea dos cartas. Recuerda lo que viste. Un tablero nuevo cada día." },
+    fr: { brand: "Twinvale Quotidien", title: "Un ami vous défie !", turns: "tours", seconds: "secondes",
+          pitch: "Mêmes cartes, même ordre. Vous faites mieux ?", open: "Ouvrir dans Twinvale", get: "Twinvale gratuit",
+          play: "Disponible sur Google Play", appStore: "Télécharger dans l’App Store",
+          hint: "Déjà installé ? Touchez « Ouvrir dans Twinvale » pour jouer le même plateau.",
+          invalidBody: "Retournez deux cartes. Souvenez-vous. Un nouveau plateau chaque jour." },
+    hi: { brand: "युग्मगढ़ डेली", title: "एक दोस्त ने आपको चुनौती दी!", turns: "चालें", seconds: "सेकंड",
+          pitch: "वही कार्ड, वही क्रम। क्या आप हरा सकते हैं?", open: "युग्मगढ़ में खोलें", get: "युग्मगढ़ मुफ़्त पाएँ",
+          play: "Google Play पर पाएँ", appStore: "App Store से डाउनलोड करें",
+          hint: "पहले से इंस्टॉल है? वही बोर्ड खेलने के लिए “युग्मगढ़ में खोलें” दबाएँ।",
+          invalidBody: "दो कार्ड पलटें। जो देखा उसे याद रखें। हर दिन नया डेली बोर्ड।" },
+    ar: { brand: "وادي توأم اليومي", title: "صديق يتحداك!", turns: "حركة", seconds: "ثانية",
+          pitch: "نفس البطاقات، نفس الترتيب. هل تتفوق عليه؟", open: "افتح في وادي توأم", get: "احصل على وادي توأم مجانًا",
+          play: "احصل عليه من Google Play", appStore: "حمّل من App Store",
+          hint: "مثبّت لديك؟ اضغط «افتح في وادي توأم» لتلعب اللوحة نفسها.",
+          invalidBody: "اقلب بطاقتين. تذكّر ما رأيت. لوحة يومية جديدة كل يوم." }
+  };
+
+  function pickLanguage() {
+    var langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
+    for (var i = 0; i < langs.length; i++) {
+      var tag = String(langs[i]).toLowerCase();
+      if (tag.indexOf("zh") === 0) {
+        return /hant|-tw|-hk|-mo/.test(tag) ? "zhHant" : "zh";
+      }
+      var base = tag.split("-")[0];
+      if (STRINGS[base]) return base;
+    }
+    return "en";
+  }
+
+  var lang = pickLanguage();
+  var t = STRINGS[lang];
+  document.documentElement.lang = lang === "zhHant" ? "zh-Hant" : lang === "zh" ? "zh-Hans" : lang;
+  if (lang === "ar") document.documentElement.dir = "rtl";
+
+  function setText(id, value) { document.getElementById(id).textContent = value; }
+
+  // The link is untrusted input: every value is validated the same way the
+  // app validates it, and only ever written with textContent.
+  function parseChallenge() {
+    var q = new URLSearchParams(window.location.search);
+    var d = q.get("d") || "";
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d);
+    var turns = parseInt(q.get("t"), 10);
+    var seconds = parseInt(q.get("s"), 10);
+    var stars = parseInt(q.get("r") || "0", 10);
+    if (!m || isNaN(turns) || isNaN(seconds)) return null;
+    if (turns < 1 || turns > 999 || seconds < 0 || seconds > 5999) return null;
+    var date = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (date.getUTCFullYear() !== +m[1] || date.getUTCMonth() !== +m[2] - 1 || date.getUTCDate() !== +m[3]) return null;
+    if (isNaN(stars) || stars < 0) stars = 0;
+    if (stars > 3) stars = 3;
+    return { d: d, date: date, turns: turns, seconds: seconds, stars: stars };
+  }
+
+  var ua = navigator.userAgent || "";
+  var isAndroid = /Android/i.test(ua);
+  var isApple = /iPhone|iPad|iPod|Macintosh/i.test(ua);
+
+  var challenge = parseChallenge();
+  setText("brand", t.brand);
+  setText("hint", t.hint);
+  setText("turnsLabel", t.turns);
+  setText("secondsLabel", t.seconds);
+  setText("invalidBody", t.invalidBody);
+
+  var open = document.getElementById("open");
+  var store = document.getElementById("store");
+  var storeOther = document.getElementById("storeOther");
+
+  if (isAndroid) {
+    store.href = PLAY_STORE;
+    store.textContent = t.get;
+  } else {
+    store.href = APP_STORE;
+    store.textContent = t.get;
+    if (!isApple) {
+      // Desktop or unknown: offer both stores.
+      store.textContent = t.appStore;
+      storeOther.textContent = t.play;
+      storeOther.classList.remove("hidden");
+    }
+  }
+
+  if (!challenge) {
+    document.getElementById("challenge").classList.add("hidden");
+    document.getElementById("invalid").classList.remove("hidden");
+    open.classList.add("hidden");
+    document.getElementById("hint").classList.add("hidden");
+    return;
+  }
+
+  setText("title", t.title);
+  setText("pitch", t.pitch);
+  setText("turns", String(challenge.turns));
+  setText("seconds", String(challenge.seconds));
+  var stars = "";
+  for (var i = 0; i < 3; i++) stars += i < challenge.stars ? "★" : "☆";
+  setText("stars", stars);
+  document.getElementById("stars").style.color = "#FFD34D";
+  try {
+    setText("date", challenge.date.toLocaleDateString(document.documentElement.lang, {
+      year: "numeric", month: "long", day: "numeric", timeZone: "UTC"
+    }));
+  } catch (e) {
+    setText("date", challenge.d);
+  }
+  document.title = t.title + " · " + t.brand;
+
+  var query = "d=" + encodeURIComponent(challenge.d) +
+      "&t=" + challenge.turns + "&s=" + challenge.seconds + "&r=" + challenge.stars;
+  open.textContent = t.open;
+  if (isAndroid) {
+    // Opens the game if installed, otherwise falls through to Google Play.
+    open.href = "intent://challenge?" + query +
+        "#Intent;scheme=twinvale;package=" + PACKAGE +
+        ";S.browser_fallback_url=" + encodeURIComponent(PLAY_STORE) + ";end";
+  } else {
+    open.href = "twinvale://challenge?" + query;
+  }
+})();
+</script>
+</body>
+</html>
